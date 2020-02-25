@@ -1,0 +1,305 @@
+<html>
+<head>
+<title>Game.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.ln { color: #999999; font-weight: normal; font-style: normal; }
+.s0 { color: rgb(0,0,128); font-weight: bold; }
+.s1 { color: rgb(0,0,0); }
+.s2 { color: rgb(0,0,255); }
+.s3 { color: rgb(0,128,128); font-weight: bold; }
+.s4 { color: rgb(128,128,128); font-style: italic; }
+</style>
+</head>
+<BODY BGCOLOR="#ffffff">
+<TABLE CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<TR><TD><CENTER>
+<FONT FACE="Arial, Helvetica" COLOR="#000000">
+Game.py</FONT>
+</center></TD></TR></TABLE>
+<pre>
+<span class="s0">from </span><span class="s1">tkinter </span><span class="s0">import </span><span class="s1">* 
+</span><span class="s0">from </span><span class="s1">time </span><span class="s0">import </span><span class="s1">* 
+</span><span class="s0">import </span><span class="s1">copy 
+ 
+master = Tk() 
+screen = Canvas(master, width=</span><span class="s2">500</span><span class="s1">, height=</span><span class="s2">600</span><span class="s1">, background=</span><span class="s3">&quot;#66ff55&quot;</span><span class="s1">, highlightthickness=</span><span class="s2">0</span><span class="s1">) 
+screen.pack() 
+ 
+vx = [-</span><span class="s2">1</span><span class="s1">, -</span><span class="s2">1</span><span class="s1">, -</span><span class="s2">1</span><span class="s1">, </span><span class="s2">0</span><span class="s1">, </span><span class="s2">1</span><span class="s1">, </span><span class="s2">1</span><span class="s1">, </span><span class="s2">1</span><span class="s1">, </span><span class="s2">0</span><span class="s1">] 
+vy = [-</span><span class="s2">1</span><span class="s1">, </span><span class="s2">0</span><span class="s1">, </span><span class="s2">1</span><span class="s1">, </span><span class="s2">1</span><span class="s1">, </span><span class="s2">1</span><span class="s1">, </span><span class="s2">0</span><span class="s1">, -</span><span class="s2">1</span><span class="s1">, -</span><span class="s2">1</span><span class="s1">] 
+ 
+</span><span class="s0">def </span><span class="s1">reverse(c): 
+    </span><span class="s0">return </span><span class="s3">'b' </span><span class="s0">if </span><span class="s1">c == </span><span class="s3">'w' </span><span class="s0">else </span><span class="s3">'w'</span><span class="s1"> 
+ 
+</span><span class="s0">def </span><span class="s1">inBoard(x, y): 
+    </span><span class="s0">return </span><span class="s2">0 </span><span class="s1">&lt;= x &lt; </span><span class="s2">8 </span><span class="s0">and </span><span class="s2">0 </span><span class="s1">&lt;= y &lt; </span><span class="s2">8</span><span class="s1"> 
+ 
+</span><span class="s0">def </span><span class="s1">check(board, x, y, c): 
+    </span><span class="s0">return </span><span class="s1">inBoard(x, y) </span><span class="s0">and </span><span class="s1">board[x][y] == c 
+ 
+</span><span class="s0">def </span><span class="s1">_drawStone(c, x1, y1, x2, y2, tag): 
+    </span><span class="s0">if </span><span class="s1">c == </span><span class="s3">'b'</span><span class="s1">: 
+        screen.create_oval(x1, y1, x2, y2, tags=tag, fill=</span><span class="s3">&quot;#555&quot;</span><span class="s1">,outline=</span><span class="s3">&quot;#555&quot;</span><span class="s1">) 
+        screen.create_oval(x1, y1-</span><span class="s2">2</span><span class="s1">, x2, y2-</span><span class="s2">2</span><span class="s1">, tags=tag, fill=</span><span class="s3">&quot;#000&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#000&quot;</span><span class="s1">) 
+    </span><span class="s0">else</span><span class="s1">: 
+        screen.create_oval(x1, y1, x2, y2, tags=tag, fill=</span><span class="s3">&quot;#aaa&quot;</span><span class="s1">,outline=</span><span class="s3">&quot;#aaa&quot;</span><span class="s1">) 
+        screen.create_oval(x1, y1-</span><span class="s2">2</span><span class="s1">, x2, y2-</span><span class="s2">2</span><span class="s1">, tags=tag, fill=</span><span class="s3">&quot;#fff&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#fff&quot;</span><span class="s1">) 
+ 
+</span><span class="s0">def </span><span class="s1">drawStone(c, x, y, tag = </span><span class="s0">None</span><span class="s1">): 
+    </span><span class="s0">if </span><span class="s1">tag </span><span class="s0">is None</span><span class="s1">: tag = </span><span class="s3">&quot;tile {0}-{1}&quot;</span><span class="s1">.format(x, y) 
+    _drawStone(c, </span><span class="s2">54</span><span class="s1">+</span><span class="s2">50</span><span class="s1">*x, </span><span class="s2">54</span><span class="s1">+</span><span class="s2">50</span><span class="s1">*y, </span><span class="s2">96</span><span class="s1">+</span><span class="s2">50</span><span class="s1">*x, </span><span class="s2">96</span><span class="s1">+</span><span class="s2">50</span><span class="s1">*y, tag) 
+ 
+</span><span class="s0">def </span><span class="s1">_drawAnimation(c, x, y, i): 
+    _drawStone(c, </span><span class="s2">54</span><span class="s1">+i+</span><span class="s2">50</span><span class="s1">*x, </span><span class="s2">54</span><span class="s1">+i+</span><span class="s2">50</span><span class="s1">*y, </span><span class="s2">96</span><span class="s1">-i+</span><span class="s2">50</span><span class="s1">*x, </span><span class="s2">96</span><span class="s1">-i+</span><span class="s2">50</span><span class="s1">*y, </span><span class="s3">&quot;tile animated&quot;</span><span class="s1">) 
+ 
+</span><span class="s0">def </span><span class="s1">drawAnimation(_to, x, y): 
+    _from = reverse(_to) 
+    screen.delete(</span><span class="s3">&quot;{0}-{1}&quot;</span><span class="s1">.format(x, y)) 
+ 
+    </span><span class="s4">#Shrinking</span><span class="s1"> 
+    </span><span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">21</span><span class="s1">): 
+        _drawAnimation(_from, x, y, i) 
+        </span><span class="s0">if </span><span class="s1">i%</span><span class="s2">3 </span><span class="s1">== </span><span class="s2">0</span><span class="s1">: sleep(</span><span class="s2">0.01</span><span class="s1">) 
+        screen.update() 
+        screen.delete(</span><span class="s3">&quot;animated&quot;</span><span class="s1">) 
+ 
+    </span><span class="s4">#Growing</span><span class="s1"> 
+    </span><span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">reversed(range(</span><span class="s2">21</span><span class="s1">)): 
+        _drawAnimation(_to, x, y, i) 
+        </span><span class="s0">if </span><span class="s1">i%</span><span class="s2">3 </span><span class="s1">== </span><span class="s2">0</span><span class="s1">: sleep(</span><span class="s2">0.01</span><span class="s1">) 
+        screen.update() 
+        screen.delete(</span><span class="s3">&quot;animated&quot;</span><span class="s1">) 
+ 
+    drawStone(_to, x, y, tag = </span><span class="s3">&quot;tile&quot;</span><span class="s1">) 
+ 
+</span><span class="s0">class </span><span class="s1">Game: 
+    </span><span class="s0">def </span><span class="s1">__init__(self, agentBlack = </span><span class="s0">None</span><span class="s1">, agentWhite = </span><span class="s0">None</span><span class="s1">): 
+        self.player = </span><span class="s3">'black'</span><span class="s1"> 
+        self.gameover = </span><span class="s0">False</span><span class="s1"> 
+        self.agent = {</span><span class="s3">'black' </span><span class="s1">: agentBlack, </span><span class="s3">'white' </span><span class="s1">: agentWhite} 
+        self.Board = [[</span><span class="s0">None for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">)] </span><span class="s0">for </span><span class="s1">y </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">)] 
+        self.Board[</span><span class="s2">3</span><span class="s1">][</span><span class="s2">3</span><span class="s1">] = self.Board[</span><span class="s2">4</span><span class="s1">][</span><span class="s2">4</span><span class="s1">] = </span><span class="s3">'w'</span><span class="s1"> 
+        self.Board[</span><span class="s2">3</span><span class="s1">][</span><span class="s2">4</span><span class="s1">] = self.Board[</span><span class="s2">4</span><span class="s1">][</span><span class="s2">3</span><span class="s1">] = </span><span class="s3">'b'</span><span class="s1"> 
+        self.prevBoard = copy.deepcopy(self.Board) 
+        self.recentMove = </span><span class="s0">None</span><span class="s1"> 
+ 
+    </span><span class="s0">def </span><span class="s1">changePlayer(self): 
+        self.player = </span><span class="s3">'black' </span><span class="s0">if </span><span class="s1">self.player == </span><span class="s3">'white' </span><span class="s0">else </span><span class="s3">'white'</span><span class="s1"> 
+ 
+    </span><span class="s0">def </span><span class="s1">isUser(self): 
+        </span><span class="s0">if </span><span class="s1">self.agent[self.player] </span><span class="s0">is None</span><span class="s1">: 
+            </span><span class="s0">return True</span><span class="s1"> 
+        </span><span class="s0">return False</span><span class="s1"> 
+ 
+    </span><span class="s0">def </span><span class="s1">update(self): 
+        screen.delete(</span><span class="s3">&quot;highlight&quot;</span><span class="s1">) 
+        screen.delete(</span><span class="s3">&quot;tile&quot;</span><span class="s1">) 
+        </span><span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+            </span><span class="s0">for </span><span class="s1">y </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+                </span><span class="s0">if </span><span class="s1">self.prevBoard[x][y] </span><span class="s0">is not None</span><span class="s1">: 
+                    drawStone(self.prevBoard[x][y], x, y) 
+                </span><span class="s0">elif </span><span class="s1">self.Board[x][y] </span><span class="s0">is not None</span><span class="s1">: 
+                    drawStone(self.Board[x][y], x, y) 
+        screen.update() 
+ 
+        </span><span class="s0">if </span><span class="s1">self.recentMove </span><span class="s0">is not None</span><span class="s1">: 
+            i, j = self.recentMove 
+            c = self.Board[i][j] 
+            </span><span class="s0">for </span><span class="s1">d </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+                x, y = i + vx[d], j + vy[d] 
+                </span><span class="s0">while </span><span class="s1">inBoard(x, y) </span><span class="s0">and </span><span class="s1">self.Board[x][y] != self.prevBoard[x][y]: 
+                    drawAnimation(self.Board[x][y], x, y) 
+                    x, y = x + vx[d], y + vy[d] 
+                    screen.update() 
+ 
+        </span><span class="s0">if </span><span class="s1">self.isUser(): 
+            </span><span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+                </span><span class="s0">for </span><span class="s1">y </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+                    </span><span class="s0">if </span><span class="s1">self.validMove(x, y): 
+                        screen.create_oval( 
+                            </span><span class="s2">68 </span><span class="s1">+ </span><span class="s2">50 </span><span class="s1">* x, </span><span class="s2">68 </span><span class="s1">+ </span><span class="s2">50 </span><span class="s1">* y, </span><span class="s2">32 </span><span class="s1">+ </span><span class="s2">50 </span><span class="s1">* (x + </span><span class="s2">1</span><span class="s1">), </span><span class="s2">32 </span><span class="s1">+ </span><span class="s2">50 </span><span class="s1">* (y + </span><span class="s2">1</span><span class="s1">), 
+                            tags=</span><span class="s3">&quot;highlight&quot;</span><span class="s1">, fill=</span><span class="s3">&quot;#008000&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#008000&quot;</span><span class="s1"> 
+                        ) 
+ 
+        self.drawScoreBoard() 
+ 
+        </span><span class="s0">if </span><span class="s1">self.gameover: 
+            screen.create_text( 
+                </span><span class="s2">260</span><span class="s1">, </span><span class="s2">550</span><span class="s1">, anchor=</span><span class="s3">&quot;c&quot;</span><span class="s1">, 
+                font=(</span><span class="s3">&quot;Consolas&quot;</span><span class="s1">, </span><span class="s2">15</span><span class="s1">), text=</span><span class="s3">&quot;The game is done!&quot;</span><span class="s1"> 
+            ) 
+ 
+    </span><span class="s0">def </span><span class="s1">validMove(self, x, y): 
+        </span><span class="s0">if not </span><span class="s1">check(self.Board, x, y, </span><span class="s0">None</span><span class="s1">): </span><span class="s0">return False</span><span class="s1"> 
+        c = </span><span class="s3">'b' </span><span class="s0">if </span><span class="s1">self.player == </span><span class="s3">'black' </span><span class="s0">else </span><span class="s3">'w'</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">d </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+            i, j = x + vx[d], y + vy[d] 
+            </span><span class="s0">while </span><span class="s1">check(self.Board, i, j, reverse(c)): 
+                i, j = i + vx[d], j + vy[d] 
+                </span><span class="s0">if </span><span class="s1">check(self.Board, i, j, c): 
+                    </span><span class="s0">return True</span><span class="s1"> 
+        </span><span class="s0">return False</span><span class="s1"> 
+ 
+    </span><span class="s0">def </span><span class="s1">move(self, x, y): 
+        </span><span class="s0">global </span><span class="s1">running 
+        running = </span><span class="s0">False</span><span class="s1"> 
+        self.recentMove = [x, y] 
+        self.prevBoard = copy.deepcopy(self.Board) 
+        c = </span><span class="s3">'b' </span><span class="s0">if </span><span class="s1">self.player == </span><span class="s3">'black' </span><span class="s0">else </span><span class="s3">'w'</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">d </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+            i, j = x + vx[d], y + vy[d] 
+            </span><span class="s0">while </span><span class="s1">check(self.Board, i, j, reverse(c)): 
+                i, j = i + vx[d], j + vy[d] 
+            </span><span class="s0">if </span><span class="s1">check(self.Board, i, j, c): 
+                </span><span class="s0">while </span><span class="s1">i != x </span><span class="s0">or </span><span class="s1">j != y: 
+                    i, j = i - vx[d], j - vy[d] 
+                    self.Board[i][j] = c 
+ 
+        cnt = </span><span class="s2">0</span><span class="s1"> 
+        self.changePlayer() 
+        </span><span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+            </span><span class="s0">for </span><span class="s1">y </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+                </span><span class="s0">if </span><span class="s1">self.validMove(x, y): 
+                    cnt += </span><span class="s2">1</span><span class="s1"> 
+        </span><span class="s0">if </span><span class="s1">cnt == </span><span class="s2">0</span><span class="s1">: 
+            self.changePlayer() 
+            </span><span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+                </span><span class="s0">for </span><span class="s1">y </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+                    </span><span class="s0">if </span><span class="s1">self.validMove(x, y): 
+                        cnt += </span><span class="s2">1</span><span class="s1"> 
+            </span><span class="s0">if </span><span class="s1">cnt == </span><span class="s2">0</span><span class="s1">: 
+                self.changePlayer() 
+                self.gameover = </span><span class="s0">True</span><span class="s1"> 
+ 
+        self.update() 
+        running = </span><span class="s0">True</span><span class="s1"> 
+ 
+    </span><span class="s0">def </span><span class="s1">drawScoreBoard(self): 
+        screen.delete(</span><span class="s3">&quot;score&quot;</span><span class="s1">) 
+        blackScore = whiteScore = </span><span class="s2">0</span><span class="s1"> 
+        </span><span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+            </span><span class="s0">for </span><span class="s1">y </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">8</span><span class="s1">): 
+                </span><span class="s0">if </span><span class="s1">self.Board[x][y] == </span><span class="s3">'b'</span><span class="s1">: 
+                    blackScore += </span><span class="s2">1</span><span class="s1"> 
+                </span><span class="s0">elif </span><span class="s1">self.Board[x][y] == </span><span class="s3">'w'</span><span class="s1">: 
+                    whiteScore += </span><span class="s2">1</span><span class="s1"> 
+ 
+        screen.create_oval(</span><span class="s2">50</span><span class="s1">, </span><span class="s2">540</span><span class="s1">, </span><span class="s2">70</span><span class="s1">, </span><span class="s2">560</span><span class="s1">, fill = </span><span class="s3">'black'</span><span class="s1">, outline = </span><span class="s3">'black'</span><span class="s1">) 
+        screen.create_oval(</span><span class="s2">380</span><span class="s1">, </span><span class="s2">540</span><span class="s1">, </span><span class="s2">400</span><span class="s1">, </span><span class="s2">560</span><span class="s1">, fill = </span><span class="s3">'white'</span><span class="s1">, outline = </span><span class="s3">'white'</span><span class="s1">) 
+        screen.create_text(</span><span class="s2">70</span><span class="s1">, </span><span class="s2">550</span><span class="s1">, anchor = </span><span class="s3">&quot;w&quot;</span><span class="s1">, tags = </span><span class="s3">&quot;score&quot;</span><span class="s1">, 
+                           font = (</span><span class="s3">&quot;Consolas&quot;</span><span class="s1">, </span><span class="s2">50</span><span class="s1">), fill = </span><span class="s3">&quot;black&quot;</span><span class="s1">, text = blackScore) 
+        screen.create_text(</span><span class="s2">400</span><span class="s1">, </span><span class="s2">550</span><span class="s1">, anchor = </span><span class="s3">&quot;w&quot;</span><span class="s1">, tags = </span><span class="s3">&quot;score&quot;</span><span class="s1">, 
+                           font = (</span><span class="s3">&quot;Consolas&quot;</span><span class="s1">, </span><span class="s2">50</span><span class="s1">), fill = </span><span class="s3">&quot;black&quot;</span><span class="s1">, text = whiteScore) 
+        screen.update() 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+</span><span class="s0">def </span><span class="s1">clickHandle(event): 
+    </span><span class="s0">if </span><span class="s1">running: 
+        </span><span class="s0">if </span><span class="s1">event.x &gt;= </span><span class="s2">450 </span><span class="s0">and </span><span class="s1">event.y &lt;= </span><span class="s2">50</span><span class="s1">: master.destroy() 
+        </span><span class="s0">elif </span><span class="s1">event.x &lt;= </span><span class="s2">50 </span><span class="s0">and </span><span class="s1">event.y &lt;= </span><span class="s2">50</span><span class="s1">: startGame() 
+        </span><span class="s0">elif </span><span class="s1">game.isUser(): 
+            x = int((event.x - </span><span class="s2">50</span><span class="s1">) / </span><span class="s2">50</span><span class="s1">) 
+            y = int((event.y - </span><span class="s2">50</span><span class="s1">) / </span><span class="s2">50</span><span class="s1">) 
+            </span><span class="s0">if </span><span class="s2">0 </span><span class="s1">&lt;= x &lt;= </span><span class="s2">7 </span><span class="s0">and </span><span class="s2">0 </span><span class="s1">&lt;= y &lt;= </span><span class="s2">7</span><span class="s1">: 
+                </span><span class="s0">if </span><span class="s1">game.validMove(x, y): game.move(x, y) 
+    </span><span class="s0">elif </span><span class="s2">310 </span><span class="s1">&lt;= event.y &lt;= </span><span class="s2">360 </span><span class="s0">and </span><span class="s2">180 </span><span class="s1">&lt;= event.x &lt;= </span><span class="s2">310</span><span class="s1">: startGame() 
+ 
+</span><span class="s0">def </span><span class="s1">keyHandle(event): 
+    symbol = event.keysym 
+    </span><span class="s0">if </span><span class="s1">symbol.lower() == </span><span class="s3">&quot;r&quot;</span><span class="s1">: startGame() 
+    </span><span class="s0">elif </span><span class="s1">symbol.lower() == </span><span class="s3">&quot;q&quot;</span><span class="s1">: master.destroy() 
+ 
+</span><span class="s0">def </span><span class="s1">create_buttons(): 
+    </span><span class="s4"># Restart button</span><span class="s1"> 
+    </span><span class="s4"># Background/shadow</span><span class="s1"> 
+    screen.create_rectangle(</span><span class="s2">0</span><span class="s1">, </span><span class="s2">5</span><span class="s1">, </span><span class="s2">50</span><span class="s1">, </span><span class="s2">55</span><span class="s1">, fill=</span><span class="s3">&quot;#000033&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#000033&quot;</span><span class="s1">) 
+    screen.create_rectangle(</span><span class="s2">0</span><span class="s1">, </span><span class="s2">0</span><span class="s1">, </span><span class="s2">50</span><span class="s1">, </span><span class="s2">50</span><span class="s1">, fill=</span><span class="s3">&quot;#000088&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#000088&quot;</span><span class="s1">) 
+ 
+    </span><span class="s4"># Arrow</span><span class="s1"> 
+    screen.create_arc(</span><span class="s2">5</span><span class="s1">, </span><span class="s2">5</span><span class="s1">, </span><span class="s2">45</span><span class="s1">, </span><span class="s2">45</span><span class="s1">, fill=</span><span class="s3">&quot;#000088&quot;</span><span class="s1">, width=</span><span class="s3">&quot;2&quot;</span><span class="s1">, style=</span><span class="s3">&quot;arc&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;white&quot;</span><span class="s1">, extent=</span><span class="s2">300</span><span class="s1">) 
+    screen.create_polygon(</span><span class="s2">33</span><span class="s1">, </span><span class="s2">38</span><span class="s1">, </span><span class="s2">36</span><span class="s1">, </span><span class="s2">45</span><span class="s1">, </span><span class="s2">40</span><span class="s1">, </span><span class="s2">39</span><span class="s1">, fill=</span><span class="s3">&quot;white&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;white&quot;</span><span class="s1">) 
+ 
+    </span><span class="s4"># Quit button</span><span class="s1"> 
+    </span><span class="s4"># Background/shadow</span><span class="s1"> 
+    screen.create_rectangle(</span><span class="s2">450</span><span class="s1">, </span><span class="s2">5</span><span class="s1">, </span><span class="s2">500</span><span class="s1">, </span><span class="s2">55</span><span class="s1">, fill=</span><span class="s3">&quot;#330000&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#330000&quot;</span><span class="s1">) 
+    screen.create_rectangle(</span><span class="s2">450</span><span class="s1">, </span><span class="s2">0</span><span class="s1">, </span><span class="s2">500</span><span class="s1">, </span><span class="s2">50</span><span class="s1">, fill=</span><span class="s3">&quot;#880000&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#880000&quot;</span><span class="s1">) 
+    </span><span class="s4"># &quot;X&quot;</span><span class="s1"> 
+    screen.create_line(</span><span class="s2">455</span><span class="s1">, </span><span class="s2">5</span><span class="s1">, </span><span class="s2">495</span><span class="s1">, </span><span class="s2">45</span><span class="s1">, fill=</span><span class="s3">&quot;white&quot;</span><span class="s1">, width=</span><span class="s3">&quot;3&quot;</span><span class="s1">) 
+    screen.create_line(</span><span class="s2">495</span><span class="s1">, </span><span class="s2">5</span><span class="s1">, </span><span class="s2">455</span><span class="s1">, </span><span class="s2">45</span><span class="s1">, fill=</span><span class="s3">&quot;white&quot;</span><span class="s1">, width=</span><span class="s3">&quot;3&quot;</span><span class="s1">) 
+ 
+ 
+</span><span class="s0">def </span><span class="s1">runGame(): 
+    </span><span class="s0">global </span><span class="s1">running 
+    running = </span><span class="s0">False</span><span class="s1"> 
+    </span><span class="s4"># Title and shadow</span><span class="s1"> 
+    screen.create_text(</span><span class="s2">250</span><span class="s1">, </span><span class="s2">203</span><span class="s1">, anchor=</span><span class="s3">&quot;c&quot;</span><span class="s1">, text=</span><span class="s3">&quot;Othello&quot;</span><span class="s1">, font=(</span><span class="s3">&quot;Consolas&quot;</span><span class="s1">, </span><span class="s2">50</span><span class="s1">), fill=</span><span class="s3">&quot;#aaa&quot;</span><span class="s1">) 
+    screen.create_text(</span><span class="s2">250</span><span class="s1">, </span><span class="s2">200</span><span class="s1">, anchor=</span><span class="s3">&quot;c&quot;</span><span class="s1">, text=</span><span class="s3">&quot;Othello&quot;</span><span class="s1">, font=(</span><span class="s3">&quot;Consolas&quot;</span><span class="s1">, </span><span class="s2">50</span><span class="s1">), fill=</span><span class="s3">&quot;#fff&quot;</span><span class="s1">) 
+ 
+    </span><span class="s4"># Creating the difficulty buttons</span><span class="s1"> 
+    </span><span class="s4"># Background</span><span class="s1"> 
+    screen.create_rectangle(</span><span class="s2">180</span><span class="s1">, </span><span class="s2">310</span><span class="s1">, </span><span class="s2">310</span><span class="s1">, </span><span class="s2">360</span><span class="s1">, fill=</span><span class="s3">&quot;#000&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#000&quot;</span><span class="s1">) 
+    screen.create_rectangle(</span><span class="s2">185</span><span class="s1">, </span><span class="s2">315</span><span class="s1">, </span><span class="s2">305</span><span class="s1">, </span><span class="s2">355</span><span class="s1">, fill=</span><span class="s3">&quot;#111&quot;</span><span class="s1">, outline=</span><span class="s3">&quot;#111&quot;</span><span class="s1">) 
+    screen.create_text(</span><span class="s2">245</span><span class="s1">, </span><span class="s2">334</span><span class="s1">, anchor=</span><span class="s3">&quot;c&quot;</span><span class="s1">, text=</span><span class="s3">&quot;Start&quot;</span><span class="s1">, font=(</span><span class="s3">&quot;Consolas&quot;</span><span class="s1">, </span><span class="s2">25</span><span class="s1">), fill=</span><span class="s3">&quot;#b29600&quot;</span><span class="s1">) 
+    screen.create_text(</span><span class="s2">245</span><span class="s1">, </span><span class="s2">335</span><span class="s1">, anchor=</span><span class="s3">&quot;c&quot;</span><span class="s1">, text=</span><span class="s3">&quot;Start&quot;</span><span class="s1">, font=(</span><span class="s3">&quot;Consolas&quot;</span><span class="s1">, </span><span class="s2">25</span><span class="s1">), fill=</span><span class="s3">&quot;#b29600&quot;</span><span class="s1">) 
+    screen.create_text(</span><span class="s2">245</span><span class="s1">, </span><span class="s2">334</span><span class="s1">, anchor=</span><span class="s3">&quot;c&quot;</span><span class="s1">, text=</span><span class="s3">&quot;Start&quot;</span><span class="s1">, font=(</span><span class="s3">&quot;Consolas&quot;</span><span class="s1">, </span><span class="s2">25</span><span class="s1">), fill=</span><span class="s3">&quot;#ffd700&quot;</span><span class="s1">) 
+    screen.update() 
+ 
+ 
+</span><span class="s4"># Method for drawing the gridlines</span><span class="s1"> 
+</span><span class="s0">def </span><span class="s1">drawGridBackground(outline=</span><span class="s0">False</span><span class="s1">): 
+    </span><span class="s4"># If we want an outline on the board then draw one</span><span class="s1"> 
+    </span><span class="s0">if </span><span class="s1">outline: 
+        screen.create_rectangle(</span><span class="s2">50</span><span class="s1">,</span><span class="s2">50</span><span class="s1">,</span><span class="s2">450</span><span class="s1">,</span><span class="s2">450</span><span class="s1">,outline=</span><span class="s3">&quot;#111&quot;</span><span class="s1">) 
+ 
+    </span><span class="s4"># Drawing the intermediate lines</span><span class="s1"> 
+    </span><span class="s0">for </span><span class="s1">i </span><span class="s0">in </span><span class="s1">range(</span><span class="s2">7</span><span class="s1">): 
+        lineShift = </span><span class="s2">50</span><span class="s1">+</span><span class="s2">50</span><span class="s1">*(i+</span><span class="s2">1</span><span class="s1">) 
+        </span><span class="s4"># Horizontal line</span><span class="s1"> 
+        screen.create_line(</span><span class="s2">50</span><span class="s1">,lineShift,</span><span class="s2">450</span><span class="s1">,lineShift,fill=</span><span class="s3">&quot;#111&quot;</span><span class="s1">) 
+        </span><span class="s4"># Vertical line</span><span class="s1"> 
+        screen.create_line(lineShift,</span><span class="s2">50</span><span class="s1">,lineShift,</span><span class="s2">450</span><span class="s1">,fill=</span><span class="s3">&quot;#111&quot;</span><span class="s1">) 
+ 
+    screen.update() 
+ 
+</span><span class="s0">def </span><span class="s1">startGame(): 
+    </span><span class="s0">global </span><span class="s1">game, running 
+    running = </span><span class="s0">True</span><span class="s1"> 
+    screen.delete(ALL) 
+    create_buttons() 
+ 
+    </span><span class="s4"># Draw the background</span><span class="s1"> 
+    drawGridBackground() 
+ 
+    </span><span class="s4"># Create the board and update it</span><span class="s1"> 
+    game = Game() 
+    game.update() 
+ 
+</span><span class="s0">if </span><span class="s1">__name__==</span><span class="s3">&quot;__main__&quot;</span><span class="s1">: 
+    runGame() 
+ 
+    </span><span class="s4"># Binding, setting</span><span class="s1"> 
+    screen.bind(</span><span class="s3">&quot;&lt;Button-1&gt;&quot;</span><span class="s1">, clickHandle) 
+    screen.bind(</span><span class="s3">&quot;&lt;Key&gt;&quot;</span><span class="s1">, keyHandle) 
+    screen.focus_set() 
+ 
+    </span><span class="s4"># Run forever</span><span class="s1"> 
+    master.wm_title(</span><span class="s3">&quot;Othello&quot;</span><span class="s1">) 
+    master.mainloop() 
+ 
+ 
+ 
+</span></pre>
+</body>
+</html>
